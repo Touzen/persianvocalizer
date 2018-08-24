@@ -1,0 +1,1 @@
+from persianvocalizer.HMMVocalizer import HMMVocalizer

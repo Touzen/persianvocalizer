@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Persian Vocalizer</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+    <style>
+        body {
+            background-size: 500px;
+            background-image: url("/static/Paisley-Vector-Pattern.svg");
+        }
+
+        .uninitialized {
+            display: none;
+        }
+
+        #main {
+            min-height: 97.5vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        #prompt {
+            flex: none;
+            max-width: 50%;
+            min-width: 30%;
+            text-align: center;
+        }
+
+        #outputdiv {
+            margin-top: 1vh;
+            max-width: 50%;
+            min-width: 30%;
+            flex: none;
+            text-align: center;
+        }
+
+        #footer {
+            text-align: center;
+            min-height: 2.5vh;
+            background: rgba(41, 49, 42, .75);
+            color: lightgray;
+        }
+
+        #footer a {
+            color: inherit;
+            text-decoration: underline;
+        }
+
+        @keyframes pulse_animation {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        .pulse {
+            animation-name: pulse_animation;
+            animation-duration: 2000ms;
+            transform-origin:70% 70%;
+            animation-iteration-count: infinite;
+            animation-timing-function: linear;
+        }
+
+    </style>
+    <script>
+        const lookup = {
+            "ا": "A", "ب": "b", "پ": "p", "ت": "t",
+            "ث": "s", "ج": "j", "چ": "č", "ح": "h",
+            "خ": "x", "د": "d", "ذ": "z", "ر": "r",
+            "ز": "z", "ژ": "ž", "س": "s", "ش": "š",
+            "ص": "s", "ض": "z", "ط": "t", "ظ": "z",
+            "ع": "'", "غ": "q", "ف": "f", "ق": "q",
+            "ک": "k", "گ": "g", "ل": "l", "م": "m",
+            "ن": "n", "و": "v", "ه": "h", "ی": "i",
+            "آ": "ā", " ": " ", ".": "."
+        };
+
+        const transliterate = persian =>
+            persian.split('')
+                .map(c => lookup[c])
+                .join('')
+                .replace(/([^ ^])A/g, (_, preceding) => preceding + 'ā');
+
+        window.onload = () => {
+            const button = document.getElementsByTagName('button')[0];
+            button.onclick = () => {
+                button.textContent = "Loading...";
+                button.classList.add("pulse");
+                const input = document.getElementById('input').value;
+                const xhr = new XMLHttpRequest();
+                xhr.open('GET', 'vocalization/' + transliterate(input));
+                xhr.send(null);
+                xhr.onreadystatechange = () => {
+                    if (xhr.readyState === 4) {
+                        button.classList.remove("pulse");
+                        button.textContent = "Vocalize";
+                        if (xhr.status === 200) {
+                            const output = document.getElementById("output");
+                            output.textContent = xhr.responseText;
+                            output.style = "display: inline;";
+                        } else {
+                            console.log("Request failed.");
+                        }
+                    }
+                };
+            };
+        };
+    </script>
+</head>
+<body>
+        <div id="main">
+            <div id="prompt">
+                <input type="text" id="input" placeholder="Persian text" class="form-control" />
+                <button class="btn btn-primary">Vocalize</button>
+            </div>
+            <div id="outputdiv">
+                <textarea id="output" class="form-control uninitialized"></textarea>
+            </div>
+        </div>
+        <footer class="page-footer" id="footer">
+            Background by <a href="https://www.freevector.com/paisley-vector-pattern">DesigniousTimes.com</a> (CC BY 4.0)
+            was converted to SVG.
+        </footer>
+</body>
+</html>
